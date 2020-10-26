@@ -3,13 +3,10 @@
 session_start();
 
 echo "Test Home Page";
-if ($_POST["logout"]) {
-	header("LOCATION:amplifylogout.php");	//send user to logout
-}
+echo "<br>";
+echo '<form method="post" action="amplifylogout.php">';
+echo "<TR>";
+echo '<TD> <input type="submit" name="Logout" value="Logout"> </TD>';		//provide a button to optionally return to the student login page
+echo "</TR>";
+echo '</form>';
 ?>
-
-<center>
-<form method=post action=amplifylogin.php>
-	<input type="submit" name="logout" value="Logout">
-</form>
-</center>
