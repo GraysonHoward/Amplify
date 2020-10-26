@@ -49,13 +49,14 @@ try {
 }
 	// Html section that follows displays a text area for username and password, as well as a submit button
 ?>
-
+<center>
 <form method=post action=amplifylogin.php>
 username: <input type="text" name="userid">
 <br>
 password: <input type="password" name="password">
 <br>
 <input type="submit" name="login" value="login">
+</center>
 </form>
 
 
