@@ -11,7 +11,7 @@ if (isset($_POST["userid"])) {
 	
 // try catch statement to access the database
 try { 
-    $config = parse_ini_file("db.ini");
+    $config = parse_ini_file("amplifydb.ini");
     $dbh = new PDO($config['dsn'], $config['username'],$config['password']);
 
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
