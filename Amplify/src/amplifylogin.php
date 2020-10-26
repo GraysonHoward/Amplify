@@ -35,7 +35,7 @@ try {
         $_SESSION['username'] = $_POST['userid'];
         $_SESSION['password'] = $_POST['password'];
 		// Redirects to homepage
-        header('Location: //whatever homepage filename is');
+        header('Location: index.php');
 	return;
     } else {
 		// If info is wrong, prints this statement
