@@ -1,17 +1,16 @@
 /* eventpage_comments.css handles the inner css for the event page comments */
 .comments{
     height: auto;
-    border-style: solid;
     margin-top: 10pt;
+    margin-left: 5px;
     padding: 0 10pt 10pt 10pt;
-    background-color: slategray;
 }
 
 .comments ul li p{
     outline-style: solid;
     outline-width: thin;
     padding: 3pt;
-    background-color: white;
+    background-color: slategray;
 }
 
 .comments ul li{

@@ -12,6 +12,25 @@
             padding: 0;
         } 
 
+        #banner{
+            position:fixed;
+            width:100%;
+            height:115px;
+
+            padding:5px;
+            z-index:2;
+            left:0;
+            top:0;
+            background-image:url("studyofdista.jpg");
+        }
+        
+        body{
+            color: white;
+            background-image: radial-gradient(teal, slategrey);
+            overflow-x: hidden;
+            margin-top:115px;
+        }
+
         button.inactive{
             color: slategrey;
             background-color: steelblue;
@@ -31,27 +50,31 @@
 
         div.attendeepane{            
             width: 34%;
-            padding-top: 0px;
             position: sticky;
-            top: 0;
-            background-color: aquamarine;
-            align-self: flex-start;
-            height: 100vh;
+            top: 130px;
+            height: 80vh;
+            margin: 5px;
         }
 
         div.contentpane{
-            background-color: royalblue;
-            width: 100%;
             display: flex;
             flex: 1;
             min-height: 100%;
+            border:5px;
+            border-style:solid;
+            border-color:black;
+            border-top:0;
+            margin: 5px;
         }
 
         div.eventpane {
-            background-color: silver;
             width: 66%;
             text-align: center;
             padding-top: 10pt;
+            margin-bottom: 0px;
+            border: 5px;
+            border-style: none none none solid;
+            border-color:black;
         }
 
         .eventpane img{
@@ -70,6 +93,8 @@
         .infowrapper{
             display: flex;
             padding:  0 5% 0 5%;
+            border-style: none none solid none;
+            border-color: black;
         }
 
         .quickinfo{
@@ -102,12 +127,19 @@
             }
 
             div.attendeepane{
-                width: 100%;
+                width: auto;
                 text-align: center;
                 max-height: 450pt;
+                border-top-style: solid;
+                border-color: black;
+                margin-left: 0;
+                margin-right: 0;
+                padding:0 5px 0 5px;
             }
+
             div.eventpane{
                 width: 100%;
+                border-style: none;
             }
         }
     </style>
@@ -129,9 +161,13 @@
 
 <body>
     <header>
-        <h1>
-            Amplify!
-        </h1>
+        <div id=banner>
+            <div id=logo>
+                 <a href="Homepage.html">
+            <img src="invislogo.png">
+                </a>
+            </div>
+        </div>
     </header>
     <div class = "contentpane">
         <div class = "attendeepane">
