@@ -66,49 +66,42 @@
   <div id=events class=box>
     <h2>All Events</h2>
     <div id= "eventpane">
-      <div id = "thumbnail_template">
-        <div class = "eventTitle">Event</div>
-		<?php
 	
-	session_start();
+	<?php
+		session_start();
 	
-	try {
-		$config = parse_ini_file("amplifydb.ini");
-		$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+		try {
+			$config = parse_ini_file("amplifydb.ini");
+			$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
 
-		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-
-		echo "<font face='georgia' size='3'>";
-	// query that selects the events 
-		foreach ( $dbh->query("SELECT eventName FROM Events ORDER BY rating DESC") as $row ) {
-    	
-		// Prints the event name and a button to go to the eventpage
-			echo $row[0];
-			echo '<form method="post" action="eventpage.html">';
-			echo '<input type = "hidden" name = "name" value="'.$row[0].'">'; 
-			echo '<input type="submit" name="goto_event" value="See More Details">';
-			echo '</form>';
-			
+			foreach ( $dbh->query("SELECT eventName FROM Events ORDER BY rating DESC") as $row ) {
+				
+				
+				echo '<div class = "thumbnail">';
+				echo '<div class = "eventTitle">';
+				echo $row[0];
+				echo '</div>';
+				echo '<img src = "empty_event.png">';
+				echo '</div>';
+			}
+				// Catch statement that activates if connection to database fails
+			} catch (PDOException $e) {
+				print "Error!" . $e->getMessage()."<br/>";
+				die();
+			}	
 	
-		}
-// Catch statement that activates if connection to database fails
-	} catch (PDOException $e) {
-		print "Error!" . $e->getMessage()."<br/>";
-		die();
-	}
-  
-  
-  
-  ?>
-        <img src = "empty_event.png">
-      </div>
+	?>
+	
+
+		
     </div>
     <h3 class = "hidden">No more events to display!</h3>
   </div>
   <a href="Account.html">Return to Account page.</a>
   <footer>
-    <script src = "Homepage.js"></script>
+    
   </footer>
 </body>
 
