@@ -47,12 +47,12 @@
     }
 
     #events{
-      height: 1000px;
       border-top:5px;
       top:115px;
     }
 
   </style>
+  <link rel="stylesheet" href="Homepage.css">
 </head>
 
 <body>
@@ -63,10 +63,20 @@
   </a>
   </div>
   </div>
-  <div id=Events class=box>
-  <h2>All Events</h2>
+  <div id=events class=box>
+    <h2>All Events</h2>
+    <div id= "eventpane">
+      <div id = "thumbnail_template">
+        <div class = "eventTitle">Event</div>
+        <img src = "empty_event.png">
+      </div>
+    </div>
+    <h3 class = "hidden">No more events to display!</h3>
   </div>
   <a href="Account.html">Return to Account page.</a>
+  <footer>
+    <script src = "Homepage.js"></script>
+  </footer>
 </body>
 
 </html>
