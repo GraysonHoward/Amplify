@@ -41,9 +41,33 @@
       top:0;
       background-image:url("studyofdista.jpg");
     }
-
+	
+	.infowrapper{
+			display: flex;
+			padding: 0 1% 0 0;
+            border-style: none none solid none;
+            border-color: black;
+    }
+	btn-container{
+		
+	}
+	.align-right{
+		text-align:right;
+		border:0;
+	}
+	
+	.buttondiv button{
+            background-color: yellow;
+			display: block;
+            padding: 5%;
+            font-weight: bold;
+            border-radius: 3pt;
+			width: 125px;
+			height: 30px;
+    }
+	
     #logo{
-
+		width: 100%;
     }
 
     #events{
@@ -57,10 +81,41 @@
 
 <body>
   <div id=banner >
+  <div class = "infowrapper">
   <div id=logo>
-  <a href="Homepage.html">
+  <a href="Homepage.php">
   <img src="invislogo.png">
   </a>
+  </div>
+  <div class= "btn-container">
+  <div class = "align-right">
+		<div class = "buttondiv">
+			<button>
+				<a href="Account.html">
+				My Account
+				</a>
+			</button>
+		</div>
+  </div>
+  <div class = "align-right">
+		<div class = "buttondiv">
+			<button>
+				<a href="eventpage.html">
+				Create An Event
+				</a>
+			</button>
+		</div>
+  </div>
+  <div class = "align-right">
+		<div class = "buttondiv">
+			<button>
+				<a href="amplifylogout.php">
+				Log Out
+				</a>
+			</button>
+		</div>
+  </div>
+  </div>
   </div>
   </div>
   <div id=events class=box>
@@ -81,10 +136,13 @@
 				
 				echo '<div class = "thumbnail">';
 				echo '<div class = "eventTitle">';
-				echo $row[0];
+				echo '<a href="eventpage.html">';
+					echo $row[0];
+					echo '<input type = "hidden" name = "eventName" value="'.$row[0].'">'; 
+					echo '</a>';
 				echo '</div>';
 				echo '<img src = "empty_event.png">';
-				echo '</div>';
+				echo '</div>'; 
 			}
 				// Catch statement that activates if connection to database fails
 			} catch (PDOException $e) {
