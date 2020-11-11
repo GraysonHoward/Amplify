@@ -4,8 +4,10 @@ if (!$_SESSION["loggedin"]) {
 	header("LOCATION:amplifylogin.php");
 	return;
 }
-	$name = $_POST['name'];
-	$_SESSION['eventName'] = $name;
+
+	$name = $_POST['eventName'];
+	
+	$_SESSION['eventname'] = $name;
 	$_SESSION['comments'] = array();
 ?>
 
@@ -33,7 +35,9 @@ if (!$_SESSION["loggedin"]) {
             top:0;
             background-image:url("studyofdista.jpg");
         }
-        
+        #logo{
+			width: 100%;
+		}
         body{
             color: white;
             background-image: radial-gradient(teal, slategrey);
@@ -43,6 +47,7 @@ if (!$_SESSION["loggedin"]) {
         button.inactive{
             color: slategrey;
             background-color: steelblue;
+            border-radius: 5px;
         }
         .description{
             text-align: left;
@@ -61,6 +66,7 @@ if (!$_SESSION["loggedin"]) {
             top: 130px;
             height: 80vh;
             margin: 5px;
+            padding-top: 5px;
         }
         div.contentpane{
             display: flex;
@@ -91,22 +97,45 @@ if (!$_SESSION["loggedin"]) {
             text-align: center;
             margin-bottom: 5%;
         }
+		.infowrapper2{
+			display: flex;
+			padding: 0 1% 0 0;
+            border-style: none none solid none;
+            border-color: black;
+		}
+		.btn-container{
+		
+		}
         /* Holds the quick-info and "i'm interested" button elements*/
         .infowrapper{
             display: flex;
-            padding:  0 5% 0 5%;
+            padding:  0 5% 10px 5%;
             border-style: none none solid none;
             border-color: black;
+            margin-bottom: 10px;
         }
         .quickinfo{
             width: 100%;
         }
-        .buttondiv button{
+		.align-right{
+			text-align:right;
+			border:0;
+		}
+        form input{
             background-color: yellow;
             padding: 5%;
             font-weight: bold;
             border-radius: 3pt;
         }
+		.buttondiv2 button{
+            background-color: yellow;
+			display: block;
+            padding: 5%;
+            font-weight: bold;
+            border-radius: 3pt;
+			width: 125px;
+			height: 30px;
+		}
         /*Handles default styling for comment and attendee lists*/
         ul{
             text-align: left;
@@ -122,17 +151,34 @@ if (!$_SESSION["loggedin"]) {
             padding: 0 10pt 10pt 10pt;
         }
 
+        #addComment{
+            background-color: yellow;
+            border-radius: 5px;
+            padding: 1px;
+            margin: 4px;
+        }
+
         .comments ul li p{
-            outline-style: solid;
-            outline-width: thin;
             padding: 3pt;
             background-color: slategray;
+            margin-top: 5px;
         }
 
         .comments ul li{
             margin: 0 0 10pt 0;
-            border-style: double;
-            background-color: rosybrown;
+            border-style: solid;
+            background-color: black;
+            padding: 5px;
+        }
+
+        .ratingWrapper button{
+            border-radius: 50%;
+        }
+
+        .rating{
+            vertical-align: center;
+            margin-left: 10px;
+            margin-right: 10px;
         }
 
         .hide{
@@ -180,6 +226,13 @@ if (!$_SESSION["loggedin"]) {
 
         .attendeeList li button{
             margin-left: 20px;
+            background-color: 02fdff;
+            border-radius: 5px;
+            padding: 1px;
+        }
+
+        .noAtts{
+            margin-top: 20px;
         }
     </style>
     <style> /*The contents of this style tag handle styling for mobile devices*/
@@ -211,12 +264,43 @@ if (!$_SESSION["loggedin"]) {
 <body>
     <header>
         <div id=banner>
-            <div id=logo>
-                 <a href="Homepage.php">
-            <img src="invislogo.png">
-                </a>
-            </div>
-        </div>
+			<div class = "infowrapper2">
+				<div id=logo>
+					<a href="Homepage.php">
+						<img src="invislogo.png">
+					</a>
+				</div>
+			<div class= "btn-container">
+				<div class = "align-right">
+					<div class = "buttondiv2">
+						<button>
+							<a href="Account.html" class = "button">
+								My Account
+							</a>
+						</button>
+					</div>
+				</div>
+				<div class = "align-right">
+					<div class = "buttondiv2">
+						<button>
+							<a href="eventpage.php" class = "button">
+								Create An Event
+							</a>
+						</button>
+					</div>
+				</div>
+				<div class = "align-right">
+					<div class = "buttondiv2">
+						<button>
+							<a href="amplifylogout.php" class = "button">
+								Log Out
+							</a>
+						</button>
+					</div>
+				</div>			  
+			</div>
+			</div>
+		</div>
     </header>
     <div class = "contentpane">
         <div class = "attendeepane">
@@ -266,9 +350,25 @@ if (!$_SESSION["loggedin"]) {
             </div>
             <div class = "eventinfo">
                 <div class = "description">
-                    <p>
-                        The event description goes here. It may contain several lines of text. How about that! Make sure to include relevant information here. Maybe a link to a ticket sales website? Who knows, the choice is all yours!
-                    </p>
+                   
+                        <?php
+	
+							try {
+								$config = parse_ini_file("amplifydb.ini");
+								$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+
+								$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+					
+								foreach ( $dbh->query("SELECT bio FROM Events where eventName = '".$name."'") as $bio ) {
+									echo "<p>$bio[0]</p>";
+								}
+							} catch (PDOException $e) {
+								print "Error!" . $e->getMessage()."<br/>";
+								die();
+							}	
+			
+						?>
+                    
                 </div>
                 <div class = "infowrapper">
                     <div class = "quickinfo">
@@ -294,32 +394,37 @@ if (!$_SESSION["loggedin"]) {
 							?>
                         </ul>
                     </div>
-                    <div class = "buttondiv">
-                        <button>I'm interested!</button>
-                    </div>
+					<?php
+						echo '<form method="post" action="eventpage.php">';
+							echo '<input type="submit" name="eventName" value=" I am interested! ">';
+							echo '<input type = "hidden" name = "eventName" value="'.$name.'">'; 
+						echo '</form>';	
+					?>
                 </div>
             </div>
             <div class = "comments">
                 <h3>
                     Comments
                 </h3>
-                <button>Add comment</button>
                 <div class = "noComments">
                     No one has commented on this event yet. Be the first to leave your thoughts!
                 </div>
+                <button id = 'addComment'>Add comment</button>
                 <ul>
                     <li class = "blankComment">
-                        <div class = "username">
-                            username
+                        <div class = "commentHeader">
+                            <div class = "username align-left">
+                                username
+                            </div>
+					    	<div class = "commentdt align-right">
+							    12
+                            </div>
                         </div>
-						<div class = "commentdt">
-							12
-						</div>
                         <p>comment body</p>
-                        <div class = "ratingWrapper">
-                            <button>Like</button>
+                        <div class = "ratingWrapper align-right">
+                            <button><img src = "like.png" height = "12"></button>
                             <div class = "rating">0</div>
-                            <button>dislike</button>
+                            <button><img src = "dislike.png" height = "12"></button>
                         </div>
                     </li>
                 </ul>
@@ -362,7 +467,7 @@ if (!$_SESSION["loggedin"]) {
 			?>
             var num = <?php echo $numComments[0] ?> //replace with datacall
             if (num == 0){
-                loadMore.className = "inactive"
+                loadMore.style.display = "none"
             }
            else{
                 document.getElementsByClassName('noComments')[0].className = "hide"
@@ -479,8 +584,9 @@ if (!$_SESSION["loggedin"]) {
 			
             var num = <?php echo $numAttendees[0] ?> //replace with datacall
             if (num == 0){
-                showMore.className = "inactive"
-             }
+                showMore.style.display = 'none';
+                document.getElementsByClassName('attendeeList')[0].style.display = 'none';
+            }
             else{
                 document.getElementsByClassName('noAtts')[0].className = "hide"
             }   

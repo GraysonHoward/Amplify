@@ -42,32 +42,30 @@
       background-image:url("studyofdista.jpg");
     }
 	
-	.infowrapper{
+  	.infowrapper{
 			display: flex;
 			padding: 0 1% 0 0;
-            border-style: none none solid none;
-            border-color: black;
+      border-style: none none solid none;
+      border-color: black;
     }
-	btn-container{
-		
-	}
-	.align-right{
-		text-align:right;
-		border:0;
-	}
+
+    .align-right{
+	    text-align:right;
+      border:0;
+    }
 	
-	.buttondiv button{
-            background-color: yellow;
+	  .buttondiv button{
+      background-color: yellow;
 			display: block;
-            padding: 5%;
-            font-weight: bold;
-            border-radius: 3pt;
+      padding: 5%;
+      font-weight: bold;
+      border-radius: 3pt;
 			width: 125px;
 			height: 30px;
     }
 	
     #logo{
-		width: 100%;
+	  	width: 100%;
     }
 
     #events{
@@ -75,48 +73,99 @@
       top:115px;
     }
 
+    .thumbnail input{
+      background-color: yellow;
+      border-radius: 5px;
+      font-weight: bold;
+      padding: 4px;
+      margin: 10px;
+    }
+
+    .thumbnail form{
+      margin: 0;
+    }
+
+    div.thumbnail{
+      background-color: purple;
+      margin: 10px;
+      font-size: 15pt;
+      border-style: solid;
+      border-width: 2px;
+      text-align: center;
+    }
+
+    div.thumbnail img{
+      width: 100%;
+    }
+
+    #eventpane{
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    h3{
+      text-align: center;
+    }
+
+    .hidden{
+      display: none;
+    }
+
+    @media screen and (max-width: 700px){
+      #eventpane{
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+
+    @media screen and (max-width: 450px){
+      #eventpane{
+        grid-template-columns: 1fr;
+      } 
+     }
+    
   </style>
-  <link rel="stylesheet" href="Homepage.css">
+
 </head>
 
 <body>
   <div id=banner >
-  <div class = "infowrapper">
-  <div id=logo>
-  <a href="Homepage.php">
-  <img src="invislogo.png">
-  </a>
-  </div>
-  <div class= "btn-container">
-  <div class = "align-right">
-		<div class = "buttondiv">
-			<button>
-				<a href="Account.html">
-				My Account
-				</a>
-			</button>
-		</div>
-  </div>
-  <div class = "align-right">
-		<div class = "buttondiv">
-			<button>
-				<a href="eventpage.html">
-				Create An Event
-				</a>
-			</button>
-		</div>
-  </div>
-  <div class = "align-right">
-		<div class = "buttondiv">
-			<button>
-				<a href="amplifylogout.php">
-				Log Out
-				</a>
-			</button>
-		</div>
-  </div>
-  </div>
-  </div>
+    <div class = "infowrapper">
+      <div id=logo>
+        <a href="Homepage.php">
+          <img src="invislogo.png">
+        </a>
+      </div>
+      <div class= "btn-container">
+        <div class = "align-right">
+		      <div class = "buttondiv">
+			      <button>
+				      <a href="Account.html">
+				        My Account
+				      </a>
+			      </button>
+		      </div>
+        </div>
+        <div class = "align-right">
+		      <div class = "buttondiv">
+			      <button>
+				      <a href="eventpage.php">
+				        Create An Event
+				      </a>
+			      </button>
+		      </div>
+        </div>
+        <div class = "align-right">
+		      <div class = "buttondiv">
+			      <button>
+				      <a href="amplifylogout.php">
+				        Log Out
+				      </a>
+			      </button>
+		      </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div id=events class=box>
     <h2>All Events</h2>
@@ -136,10 +185,10 @@
 				
 				echo '<div class = "thumbnail">';
 				echo '<div class = "eventTitle">';
-				echo '<a href="eventpage.html">';
-					echo $row[0];
+				echo '<form method="post" action="eventpage.php">';
+				echo '<input type="submit" name="eventName" value="'.$row[0].'">';
 					echo '<input type = "hidden" name = "eventName" value="'.$row[0].'">'; 
-					echo '</a>';
+				echo '</form>';	
 				echo '</div>';
 				echo '<img src = "empty_event.png">';
 				echo '</div>'; 
