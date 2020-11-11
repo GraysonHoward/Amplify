@@ -121,7 +121,11 @@ if (!$_SESSION["loggedin"]) {
 			text-align:right;
 			border:0;
 		}
+<<<<<<< HEAD
         form input{
+=======
+        .buttondiv button{
+>>>>>>> 85b6b1f46c07628733d2e6d57b99faa989dd294d
             background-color: yellow;
             padding: 5%;
             font-weight: bold;
