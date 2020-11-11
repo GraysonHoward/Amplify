@@ -4,8 +4,10 @@ if (!$_SESSION["loggedin"]) {
 	header("LOCATION:amplifylogin.php");
 	return;
 }
-	$name = $_POST['name'];
-	$_SESSION['eventName'] = $name;
+
+	$name = $_POST['eventName'];
+	
+	$_SESSION['eventname'] = $name;
 	$_SESSION['comments'] = array();
 ?>
 
@@ -33,7 +35,9 @@ if (!$_SESSION["loggedin"]) {
             top:0;
             background-image:url("studyofdista.jpg");
         }
-        
+        #logo{
+			width: 100%;
+		}
         body{
             color: white;
             background-image: radial-gradient(teal, slategrey);
@@ -91,6 +95,15 @@ if (!$_SESSION["loggedin"]) {
             text-align: center;
             margin-bottom: 5%;
         }
+		.infowrapper2{
+			display: flex;
+			padding: 0 1% 0 0;
+            border-style: none none solid none;
+            border-color: black;
+		}
+		.btn-container{
+		
+		}
         /* Holds the quick-info and "i'm interested" button elements*/
         .infowrapper{
             display: flex;
@@ -101,12 +114,25 @@ if (!$_SESSION["loggedin"]) {
         .quickinfo{
             width: 100%;
         }
+		.align-right{
+			text-align:right;
+			border:0;
+		}
         .buttondiv button{
             background-color: yellow;
             padding: 5%;
             font-weight: bold;
             border-radius: 3pt;
         }
+		.buttondiv2 button{
+            background-color: yellow;
+			display: block;
+            padding: 5%;
+            font-weight: bold;
+            border-radius: 3pt;
+			width: 125px;
+			height: 30px;
+		}
         /*Handles default styling for comment and attendee lists*/
         ul{
             text-align: left;
@@ -211,12 +237,43 @@ if (!$_SESSION["loggedin"]) {
 <body>
     <header>
         <div id=banner>
-            <div id=logo>
-                 <a href="Homepage.php">
-            <img src="invislogo.png">
-                </a>
-            </div>
-        </div>
+			<div class = "infowrapper2">
+				<div id=logo>
+					<a href="Homepage.php">
+						<img src="invislogo.png">
+					</a>
+				</div>
+			<div class= "btn-container">
+				<div class = "align-right">
+					<div class = "buttondiv2">
+						<button>
+							<a href="Account.html" class = "button">
+								My Account
+							</a>
+						</button>
+					</div>
+				</div>
+				<div class = "align-right">
+					<div class = "buttondiv2">
+						<button>
+							<a href="eventpage.php" class = "button">
+								Create An Event
+							</a>
+						</button>
+					</div>
+				</div>
+				<div class = "align-right">
+					<div class = "buttondiv2">
+						<button>
+							<a href="amplifylogout.php" class = "button">
+								Log Out
+							</a>
+						</button>
+					</div>
+				</div>			  
+			</div>
+			</div>
+		</div>
     </header>
     <div class = "contentpane">
         <div class = "attendeepane">
@@ -266,9 +323,25 @@ if (!$_SESSION["loggedin"]) {
             </div>
             <div class = "eventinfo">
                 <div class = "description">
-                    <p>
-                        The event description goes here. It may contain several lines of text. How about that! Make sure to include relevant information here. Maybe a link to a ticket sales website? Who knows, the choice is all yours!
-                    </p>
+                   
+                        <?php
+	
+							try {
+								$config = parse_ini_file("amplifydb.ini");
+								$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+
+								$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+					
+								foreach ( $dbh->query("SELECT bio FROM Events where eventName = '".$name."'") as $bio ) {
+									echo "<p>$bio[0]</p>";
+								}
+							} catch (PDOException $e) {
+								print "Error!" . $e->getMessage()."<br/>";
+								die();
+							}	
+			
+						?>
+                    
                 </div>
                 <div class = "infowrapper">
                     <div class = "quickinfo">
@@ -294,9 +367,12 @@ if (!$_SESSION["loggedin"]) {
 							?>
                         </ul>
                     </div>
-                    <div class = "buttondiv">
-                        <button>I'm interested!</button>
-                    </div>
+					<?php
+						echo '<form method="post" action="eventpage.php">';
+							echo '<input type="submit" name="eventName" value=" I am interested! ">';
+							echo '<input type = "hidden" name = "eventName" value="'.$name.'">'; 
+						echo '</form>';	
+					?>
                 </div>
             </div>
             <div class = "comments">
