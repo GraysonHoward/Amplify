@@ -180,7 +180,7 @@
 
 			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-			foreach ( $dbh->query("SELECT eventName FROM Events ORDER BY rating DESC") as $row ) {
+			foreach ( $dbh->query("SELECT eventName, image FROM Events ORDER BY rating DESC") as $row ) {
 				
 				
 				echo '<div class = "thumbnail">';
@@ -190,7 +190,11 @@
 					echo '<input type = "hidden" name = "eventName" value="'.$row[0].'">'; 
 				echo '</form>';	
 				echo '</div>';
-				echo '<img src = "empty_event.png">';
+				if ($row[1] == NULL) {
+					echo '<img src = "empty_event.png">';
+				} else {
+					echo "<img src = $row[1]>";
+				}
 				echo '</div>'; 
 			}
 				// Catch statement that activates if connection to database fails
