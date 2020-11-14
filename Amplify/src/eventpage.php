@@ -121,11 +121,7 @@ if (!$_SESSION["loggedin"]) {
 			text-align:right;
 			border:0;
 		}
-<<<<<<< HEAD
         form input{
-=======
-        .buttondiv button{
->>>>>>> 85b6b1f46c07628733d2e6d57b99faa989dd294d
             background-color: yellow;
             padding: 5%;
             font-weight: bold;
@@ -397,7 +393,7 @@ if (!$_SESSION["loggedin"]) {
 			
 							?>
                         </ul>
-                    </div>
+                </div>
 					<?php
 						echo '<form method="post" action="eventpage.php">';
 							echo '<input type="submit" name="eventName" value=" I am interested! ">';
@@ -426,9 +422,23 @@ if (!$_SESSION["loggedin"]) {
                         </div>
                         <p>comment body</p>
                         <div class = "ratingWrapper align-right">
-                            <button><img src = "like.png" height = "12"></button>
+                            <?php
+								echo '<form method="post" action = "eventpage.php">';
+								echo '<button>';
+								echo '<img src = "like.png" height = "12">';
+								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+								echo '</button>';
+								echo '</form>';
+							?>
                             <div class = "rating">0</div>
-                            <button><img src = "dislike.png" height = "12"></button>
+                            <?php
+								echo '<form method="post" action = "eventpage.php">';
+								echo '<button>';
+								echo '<img src = "dislike.png" height = "12">';
+								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+								echo '</button>';
+								echo '</form>';
+							?>
                         </div>
                     </li>
                 </ul>
