@@ -78,6 +78,12 @@ if (!$_SESSION["loggedin"]) {
             border-top:0;
             margin: 5px;
         }
+        .eventinfo{
+            border-style: none none solid none;
+            border-color: black;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+        }
         div.eventpane {
             width: 66%;
             text-align: center;
@@ -97,28 +103,32 @@ if (!$_SESSION["loggedin"]) {
             text-align: center;
             margin-bottom: 5%;
         }
+        .eventRating{
+            font-size: 14pt;
+        }
+        .eventRating .ratingWrapper{
+            display: inline;
+            vertical-align: center;
+        }
 		.infowrapper2{
 			display: flex;
 			padding: 0 1% 0 0;
             border-style: none none solid none;
             border-color: black;
 		}
-		.btn-container{
-		
-		}
         /* Holds the quick-info and "i'm interested" button elements*/
         .infowrapper{
             display: flex;
             padding:  0 5% 10px 5%;
-            border-style: none none solid none;
-            border-color: black;
-            margin-bottom: 10px;
         }
         .quickinfo{
             width: 100%;
         }
+        .ratingWrapper{
+            vertical-align: center;
+        }
 		.align-right{
-			text-align:right;
+			text-align: right;
 			border:0;
 		}
         form input{
@@ -158,6 +168,15 @@ if (!$_SESSION["loggedin"]) {
             margin: 4px;
         }
 
+        .commentInput{
+            margin: 8px;
+            width: 98%;
+            max-width: 98%;
+            min-width: 98%;
+            height: 10%;
+            white-space: normal;
+        }
+
         .comments ul li p{
             padding: 3pt;
             background-color: slategray;
@@ -177,8 +196,8 @@ if (!$_SESSION["loggedin"]) {
 
         .rating{
             vertical-align: center;
-            margin-left: 10px;
-            margin-right: 10px;
+            margin-left: 15px;
+            margin-right: 15px;
         }
 
         .hide{
@@ -194,7 +213,7 @@ if (!$_SESSION["loggedin"]) {
 
         .comments ul li div.ratingWrapper{
             display: flex;
-            justify-content: right;
+            justify-content: flex-end;
             padding: 3pt 0 3pt 0;
         }
 
@@ -393,13 +412,25 @@ if (!$_SESSION["loggedin"]) {
 			
 							?>
                         </ul>
-                </div>
+                    </div>
 					<?php
 						echo '<form method="post" action="eventpage.php">';
 							echo '<input type="submit" name="eventName" value=" I am interested! ">';
 							echo '<input type = "hidden" name = "eventName" value="'.$name.'">'; 
 						echo '</form>';	
 					?>
+                </div>
+                <div class = "eventRating">
+                    <div class = "ratingWrapper">
+                        Event Rating:   
+                        <button class = "ratingVote">
+                            <img src = "like.png" style= "width:15px; height:15px;">
+                        </button>
+                        0
+                        <button class = "ratingVote">
+                            <img src = "dislike.png" style= "width:15px; height:15px;">
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class = "comments">
@@ -411,6 +442,15 @@ if (!$_SESSION["loggedin"]) {
                 </div>
                 <button id = 'addComment'>Add comment</button>
                 <ul>
+                    <li class = "userIn hide">
+                        <form method = "post">
+                            <textarea class = "commentInput">
+                            </textarea>
+                        </form>
+                        <button class = "submitComment">
+                            Submit
+                        </button>
+                    </li>
                     <li class = "blankComment">
                         <div class = "commentHeader">
                             <div class = "username align-left">
@@ -425,7 +465,7 @@ if (!$_SESSION["loggedin"]) {
                             <?php
 								echo '<form method="post" action = "eventpage.php">';
 								echo '<button>';
-								echo '<img src = "like.png" height = "12">';
+								echo '<img src = "like.png" style= "width:12px; height:12px;">';
 								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
 								echo '</button>';
 								echo '</form>';
@@ -434,7 +474,7 @@ if (!$_SESSION["loggedin"]) {
                             <?php
 								echo '<form method="post" action = "eventpage.php">';
 								echo '<button>';
-								echo '<img src = "dislike.png" height = "12">';
+								echo '<img src = "dislike.png" style= "width:12px; height:12px;">';
 								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
 								echo '</button>';
 								echo '</form>';
@@ -458,6 +498,7 @@ if (!$_SESSION["loggedin"]) {
 		var commentRating = []
         var visibleComments = 0
         var totalComments = getNumOfComments()
+        var addUserComment = document.getElementById('addComment')
 
         //The following functions are prototypes meant to deal with data calls. 
         //This was done to keep GUI functionality independent from data call implementation
@@ -551,6 +592,11 @@ if (!$_SESSION["loggedin"]) {
         //Loads three new comments every time "load more" is clicked
         loadMore.addEventListener("click", function(){
             load3comments()
+        })
+
+        //Displays user input field when add comment is clicked
+        addUserComment.addEventListener("click", function(){
+            commentList.getElementsByClassName('userIn')[0].className = 'userIn'
         })
 
         //Adds a new li to the comment list containing html for the new comment
