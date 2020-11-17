@@ -445,68 +445,48 @@ if (!$_SESSION["loggedin"]) {
                     <div class = "ratingWrapper">
                         Event Rating:    
                         <?php
-						echo '&nbsp';
-						echo '<form method="post" action = "eventpage.php">';
-						echo '<button class = "ratingVote" name = "like">';
-                            echo '<img src = "like.png" style= "width:15px; height:15px;">';
-							echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
-								if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['like'])) {
-								try {
-									$config = parse_ini_file("amplifydb.ini");
-									$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
-
-									$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-									foreach ( $dbh->query("SELECT rating FROM Events where eventName = '".$name."'") as $erating ) {
-										$stmt = $dbh->prepare("UPDATE Events SET rating = '".$erating[0]."' + 1 where eventName = '".$name."'");
-										$stmt->execute();
-									}
-								} catch (PDOException $e) {
-									print "Error!" . $e->getMessage()."<br/>";
-									die();
-								}
-								}
-                        echo '</button>';
-						echo '</form>';
-						
-	
-							try {
-								$config = parse_ini_file("amplifydb.ini");
-								$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
-
-								$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+						try {
+							$config = parse_ini_file("amplifydb.ini");
+							$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+							$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+							echo '&nbsp';
+							echo '<form method="post" action = "eventpage.php">';
+								echo '<button class = "ratingVote" name = "like">';
+									echo '<img src = "like.png" style= "width:15px; height:15px;">';
+									echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+										if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['like'])) {
+											foreach ( $dbh->query("SELECT rating FROM Events where eventName = '".$name."'") as $erating ) {
+												$stmt = $dbh->prepare("UPDATE Events SET rating = '".$erating[0]."' + 1 where eventName = '".$name."'");
+												$stmt->execute();
+											}
+										}
+								echo '</button>';
+							echo '</form>';
 					
 								foreach ( $dbh->query("SELECT rating FROM Events where eventName = '".$name."'") as $erating ) {
 									echo '&nbsp';
 									echo $erating[0];
 									echo '&nbsp';
 								}
-							} catch (PDOException $e) {
-								print "Error!" . $e->getMessage()."<br/>";
-								die();
-							}	
 
-						echo '<form method="post" action = "eventpage.php">';
-						echo '<button class = "ratingVote" name = "dislike">';
-                            echo '<img src = "dislike.png" style= "width:15px; height:15px;">';
-							echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
-								if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['dislike'])) {
-								try {
-									$config = parse_ini_file("amplifydb.ini");
-									$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+							echo '<form method="post" action = "eventpage.php">';
+								echo '<button class = "ratingVote" name = "dislike">';
+									echo '<img src = "dislike.png" style= "width:15px; height:15px;">';
+									echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+										if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['dislike'])) {
 
-									$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-									foreach ( $dbh->query("SELECT rating FROM Events where eventName = '".$name."'") as $erating ) {
-										$stmt = $dbh->prepare("UPDATE Events SET rating = '".$erating[0]."' - 1 where eventName = '".$name."'");
-										$stmt->execute();
-									}
-								} catch (PDOException $e) {
-									print "Error!" . $e->getMessage()."<br/>";
-									die();
-								}
-								}
-                        echo '</button>';
-						echo '</form>';
-						
+											foreach ( $dbh->query("SELECT rating FROM Events where eventName = '".$name."'") as $erating ) {
+												$stmt = $dbh->prepare("UPDATE Events SET rating = '".$erating[0]."' - 1 where eventName = '".$name."'");
+												$stmt->execute();
+											}
+										} 
+									
+								echo '</button>';
+							echo '</form>';
+						} catch (PDOException $e) {
+							print "Error!" . $e->getMessage()."<br/>";
+							die();
+						}
 						?>
                     </div>
                 </div>
