@@ -110,6 +110,10 @@ if (!$_SESSION["loggedin"]) {
             display: inline-flex;
             vertical-align: center;
         }
+        #ratingNumber{
+            margin-left: 10px;
+            margin-right: 10px;
+        }
 		.infowrapper2{
 			display: flex;
 			padding: 0 1% 0 0;
@@ -330,18 +334,32 @@ if (!$_SESSION["loggedin"]) {
                 No one on Amplify is going to this event. You could be the first!
             </div>
             <ul class = "attendeeList">
-                <li class = "blankAttendee">
-                    <div class = "username">
-                        username
-                    </div>
-                    <button class = "friend">
-                        friend
-                    </button>
-                </li>
+				<?php
+	
+				try {
+					$config = parse_ini_file("amplifydb.ini");
+					$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+
+					$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+					
+					foreach ( $dbh->query("SELECT username FROM Attendees where eventName = '".$name."'") as $attendees ) {
+						echo '<li>';
+						echo $attendees[0];
+						
+						echo '<button class = "friend">';
+						echo "friend";
+						echo '</button>';
+						
+						echo '</li>';
+					}
+				} catch (PDOException $e) {
+					print "Error!" . $e->getMessage()."<br/>";
+					die();
+				}	
+			
+				?>
+           
             </ul>
-            <button class = "loadMore">
-                Show more
-            </button>
         </div>
         <div class = "eventpane">
             <h2>
@@ -437,7 +455,7 @@ if (!$_SESSION["loggedin"]) {
 									print "Error!" . $e->getMessage()."<br/>";
 									die();
 								}
-								}
+							}
 						echo '</form>';	
 					?>
                 </div>
@@ -462,13 +480,11 @@ if (!$_SESSION["loggedin"]) {
 										}
 								echo '</button>';
 							echo '</form>';
-					
+                            echo '<div id = "ratingNumber">';
 								foreach ( $dbh->query("SELECT rating FROM Events where eventName = '".$name."'") as $erating ) {
-									echo '&nbsp';
 									echo $erating[0];
-									echo '&nbsp';
 								}
-
+                            echo '</div>';
 							echo '<form method="post" action = "eventpage.php">';
 								echo '<button class = "ratingVote" name = "dislike">';
 									echo '<img src = "dislike.png" style= "width:15px; height:15px;">';
@@ -501,13 +517,30 @@ if (!$_SESSION["loggedin"]) {
                 <button id = 'addComment'>Add comment</button>
                 <ul>
                     <li class = "userIn hide">
-                        <form method = "post">
-                            <textarea class = "commentInput">
-                            </textarea>
-                        </form>
-                        <button class = "submitComment">
-                            Submit
-                        </button>
+						<?php
+							try {
+								$config = parse_ini_file("amplifydb.ini");
+								$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+								$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+								echo '<form method="post" action = "eventpage.php">';								
+								echo '<textarea class = "commentInput" name = "newComment" maxlength = "255" required>';
+								echo '</textarea>';								
+								echo '<button class = "submitComment" name = "submitNewC">';
+								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+								if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['submitNewC'])) {
+									$date = date('Y-m-d H:i:s');
+									$stmt = $dbh->prepare("INSERT INTO Comments(username, eventName, datetime, comment, rating) VALUES(?, ?, ?, ?, ?)");
+									$stmt->execute([$_SESSION["userid"], $name, $date, trim($_POST['newComment']), '0']);		
+								}
+								echo "Submit";
+								echo '</button>';
+								echo '</form>';
+							} catch (PDOException $e) {
+								print "Error!" . $e->getMessage()."<br/>";
+								die();
+							}
+						?>
+
                     </li>
                     <li class = "blankComment">
                         <div class = "commentHeader">
@@ -522,34 +555,16 @@ if (!$_SESSION["loggedin"]) {
                         <div class = "ratingWrapper align-right">
                             <?php
 								echo '<form method="post" action = "eventpage.php">';
-								echo '<button>';
+								echo '<button name = "clike">';
 								echo '<img src = "like.png" style= "width:12px; height:12px;">';
 								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
-								
-								/*
-								try {
-									$config = parse_ini_file("amplifydb.ini");
-									$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
-
-									$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-									
-									$stmt = $dbh->prepare("UPDATE Comments SET rating = '".$comments[3]."' + 1 where username = '".$comments[2]."' AND eventName = '".$name."' AND datetime = '".$comments[1]."'");
-									$stmt->execute();
-									
-								} catch (PDOException $e) {
-									print "Error!" . $e->getMessage()."<br/>";
-									die();
-								}	
-								
-								*/
-								
 								echo '</button>';
 								echo '</form>';
 							?>
                             <div class = "rating">0</div>
                             <?php
 								echo '<form method="post" action = "eventpage.php">';
-								echo '<button>';
+								echo '<button name = "cdislike">';
 								echo '<img src = "dislike.png" style= "width:12px; height:12px;">';
 								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
 								echo '</button>';
@@ -562,7 +577,27 @@ if (!$_SESSION["loggedin"]) {
             </div>
         </div>
     </div>
-	
+
+
+
+    <script>// Script for the eventRating
+        /*
+		var like = document.getElementsByClassName('ratingVote')[0];
+        var dislike = document.getElementsByClassName('ratingVote')[1];
+        var eventRating = document.getElementById('ratingNumber');
+        var eventName = "theRealEventName";
+
+        document.
+        if()
+
+        dislike.addEventListener("click", function(){
+            ratingNumber.innerHTML = parseInt(ratingNumber.innerHTML.trim()) - 1;
+            document.cookie = "event=" + eventName + "; type=eventRating; value=dislike; "; //+"expires = " + eventTime;
+            var cookies = document.
+        })
+		*/
+    </script>
+
     <script> //Script for the comments
         var template = document.getElementsByClassName('blankComment')[0]
         var commentList = document.getElementsByClassName('comments')[0]
@@ -625,6 +660,16 @@ if (!$_SESSION["loggedin"]) {
 				echo ')';
 				echo ";";
 			}
+			/*
+			if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['clike'])) {
+					$stmt = $dbh->prepare("UPDATE Comments SET rating = '".$comments[3]."' + 1 where username = '".$comments[2]."' AND eventName = '".$name."' AND datetime = '".$comments[1]."'");
+					$stmt->execute();
+			}
+			if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['cdislike'])) {
+					$stmt = $dbh->prepare("UPDATE Comments SET rating = '".$comments[3]."' - 1 where username = '".$comments[2]."' AND eventName = '".$name."' AND datetime = '".$comments[1]."'");
+					$stmt->execute();
+			}
+			*/
 		?>
 		
 		
@@ -679,26 +724,20 @@ if (!$_SESSION["loggedin"]) {
         function displayNewComment(comment){
             var newComment = template  
             //The newComment variable is for readability purposes only. It is not necessary for functionality.
-            newComment.getElementsByClassName('username')[0].innerHTML = comment[0]
-            newComment.getElementsByTagName('p')[0].innerHTML = comment[2]
-			newComment.getElementsByClassName('commentDT')[0].innerHTML = comment[1]
-			newComment.getElementsByClassName('rating')[0].innerHTML = comment[3]
-            commentList.innerHTML = commentList.innerHTML + "<li>" + newComment.innerHTML + "</li>"  
+            newComment.getElementsByClassName('username')[0].innerHTML = comment[0];
+            newComment.getElementsByTagName('p')[0].innerHTML = comment[2];
+			newComment.getElementsByClassName('commentDT')[0].innerHTML = comment[1];
+			newComment.getElementsByClassName('rating')[0].innerHTML = comment[3];
+            commentList.innerHTML = commentList.innerHTML + "<li>" + newComment.innerHTML + "</li>"; 
+            
+			
+    
             //New comments are created without the 'blankComment' tag. This allows them to display.
-            visibleComments++
+            visibleComments++;
         }
     </script>
     <script> //Javascript for the attendees
-        var attTemplate = document.getElementsByClassName('blankAttendee')[0]
-        var attendeeList = attTemplate.parentElement
-        var showMore = attendeeList.parentElement.getElementsByClassName('loadMore')[0]
-		var attendees = []
-        var visibleAtts = 0
         var totalAtts = getNumOfAtts()
-
-        var curattendee = ["hypotheticalAttendee"] // Adding extra information, like status or number of guests per user, could be a stretch goal
-
-
         function getNumOfAtts(){
 			
 			<?php
@@ -720,60 +759,12 @@ if (!$_SESSION["loggedin"]) {
 			
             var num = <?php echo $numAttendees[0] ?> //replace with datacall
             if (num == 0){
-                showMore.style.display = 'none';
                 document.getElementsByClassName('attendeeList')[0].style.display = 'none';
             }
             else{
                 document.getElementsByClassName('noAtts')[0].className = "hide"
             }   
             return num
-        }
-		
-		<?php
-			foreach ( $dbh->query("SELECT username FROM Attendees where eventName = '".$name."'") as $attendees ) {
-				echo 'attendees.push(';
-				echo json_encode($attendees[0]);
-				echo ')';
-				echo ";";
-			}
-		?>
-		
-		function getAttendee(){
-			return attendees[visibleAtts]
-		}
-		
-		function loadAttendee(){
-			var attendee = [getAttendee()]
-			return attendee
-		}
-		
-        //Loads 20 attendees automatically
-        for (var i = 0; i < 20; i++){
-           if (visibleAtts < totalAtts){
-                 displayNewAttendee(loadAttendee())
-           }
-          if(visibleAtts == totalAtts){
-                showMore.className = "inactive"
-          }   
-        }
-
-        //Loads an additional 20 attendees when "show more" is clicked
-        showMore.addEventListener("click", function(){
-         for (var i = 0; i < 20; i++){
-              if (visibleAtts < totalAtts){
-                  displayNewAttendee(loadAttendee())
-                }
-               if(visibleAtts == totalAtts){
-                    showMore.className = "inactive"
-                }   
-            }
-        })
-
-        //Displays the next attendee
-        function displayNewAttendee(attendee){
-            attTemplate.getElementsByClassName('username')[0].innerHTML = attendee[0]
-            attendeeList.innerHTML = attendeeList.innerHTML + "<li>" + attTemplate.innerHTML + "</li>" 
-            visibleAtts++
         }
     </script>
 
