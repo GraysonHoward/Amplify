@@ -4,11 +4,18 @@ if (!$_SESSION["loggedin"]) {
 	header("LOCATION:amplifylogin.php");
 	return;
 }
+if (!isset($_POST['eventName'])){
+    header("LOCATION:Homepage.php");
+	return;
+}
 
-	$name = $_POST['eventName'];
-	
+    $name = $_POST['eventName'];
+    
+	$_SESSION['attendees'] = array();
 	$_SESSION['eventname'] = $name;
 	$_SESSION['comments'] = array();
+	
+	
 ?>
 
 
@@ -19,6 +26,7 @@ if (!$_SESSION["loggedin"]) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amplify Event: <?php echo $name ?></title>
+    <link rel="shortcut icon" type="image/jpg" href="favicon.ico"/>
     <style>
         /*Every div has no initial margin or padding by default*/
         * {
@@ -194,6 +202,10 @@ if (!$_SESSION["loggedin"]) {
             padding: 5px;
         }
 
+        #commentRatings{
+            display: none;
+        }
+
         .ratingWrapper button{
             border-radius: 50%;
         }
@@ -306,7 +318,7 @@ if (!$_SESSION["loggedin"]) {
 				<div class = "align-right">
 					<div class = "buttondiv2">
 						<button>
-							<a href="eventpage.php" class = "button">
+							<a href="publishEvent.php" class = "button">
 								Create An Event
 							</a>
 						</button>
@@ -339,19 +351,42 @@ if (!$_SESSION["loggedin"]) {
 				try {
 					$config = parse_ini_file("amplifydb.ini");
 					$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
-
+						
 					$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-					
+					$_SESSION["friends"] = array();
+					foreach ( $dbh->query("SELECT friendName FROM FriendList where username = '".$_SESSION["userid"]."'") as $friends ) {
+						array_push($_SESSION["friends"] ,$friends[0]);
+					}
+
 					foreach ( $dbh->query("SELECT username FROM Attendees where eventName = '".$name."'") as $attendees ) {
 						echo '<li>';
 						echo $attendees[0];
+
 						
-						echo '<button class = "friend">';
-						echo "friend";
-						echo '</button>';
+									
+									if (!in_array($attendees[0], $_SESSION["friends"]) and $attendees[0] != $_SESSION["userid"]) {
+										echo '<form method="post">';
+										echo '<input type="hidden" name="friend" value="'.$attendees[0].'">';
+										echo '<input type="submit" name="beFriends" value= " friend? ">';
+										echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+										echo '</form>';
+									}
+						
 						
 						echo '</li>';
 					}
+					
+					echo '<form action="eventpage.php">';
+					echo '<form action="eventpage.php">';
+					if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['beFriends']) and isset($_POST['friend'])) {
+						$attendees = $_POST['friend'];
+
+						$stmt = $dbh->prepare("INSERT INTO FriendList(username, friendName) VALUES('".$_SESSION["userid"]."', '".$attendees."')");
+						$stmt->execute();
+
+					}
+					echo '</form>';
+					echo '</form>';
 				} catch (PDOException $e) {
 					print "Error!" . $e->getMessage()."<br/>";
 					die();
@@ -522,9 +557,11 @@ if (!$_SESSION["loggedin"]) {
 								$config = parse_ini_file("amplifydb.ini");
 								$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
 								$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-								echo '<form method="post" action = "eventpage.php">';								
+								echo '<form method="post" action = "eventpage.php">';
+								
 								echo '<textarea class = "commentInput" name = "newComment" maxlength = "255" required>';
-								echo '</textarea>';								
+								echo '</textarea>';
+								
 								echo '<button class = "submitComment" name = "submitNewC">';
 								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
 								if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['submitNewC'])) {
@@ -554,49 +591,90 @@ if (!$_SESSION["loggedin"]) {
                         <p>comment body</p>
                         <div class = "ratingWrapper align-right">
                             <?php
+                            /* This whole PHP tag can be removed without loss of function
+
 								echo '<form method="post" action = "eventpage.php">';
 								echo '<button name = "clike">';
 								echo '<img src = "like.png" style= "width:12px; height:12px;">';
 								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+								
 								echo '</button>';
-								echo '</form>';
+                                echo '</form>';
+                                */
 							?>
                             <div class = "rating">0</div>
                             <?php
+                            /* So can this one
+
 								echo '<form method="post" action = "eventpage.php">';
 								echo '<button name = "cdislike">';
 								echo '<img src = "dislike.png" style= "width:12px; height:12px;">';
 								echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
 								echo '</button>';
-								echo '</form>';
+                                echo '</form>';
+                                */
 							?>
                         </div>
                     </li>
+                </ul>
+                <ul id = "commentRatings">
+                    <?php
+				        try {
+				        	$config = parse_ini_file("amplifydb.ini");
+				        	$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+                        
+				        	$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                        
+                            foreach ( $dbh->query("SELECT rating, datetime, username FROM Comments where eventName = '".$name."' ORDER BY rating DESC") as $comrating ) {
+                                echo '<div class = "invisRatings">';
+                                //PHP for liking a comment
+                                echo '<form method="post" action = "eventpage.php">';
+                                echo '<button name = "clike">';
+                                echo '<input type = "hidden" name = "comdate" value = "'.$comrating[1].'">';
+                                echo '<input type = "hidden" name = "comuser" value = "'.$comrating[2].'">';
+								echo '<img src = "like.png" style= "width:12px; height:12px;">';
+                                echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+                                    if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['clike'])){
+                                        if ($_POST['comdate'] == $comrating[1] and $_POST['comuser'] == $comrating[2]){
+                                            $stmt = $dbh->prepare("UPDATE Comments SET rating = '".$comrating[0]."' + 1 where eventName = '".$name."' AND datetime = '".$comrating[1]."' AND username = '".$comrating[2]."'");
+                                            $stmt->execute();
+                                        }
+                                    }
+								echo '</button>';
+                                echo '</form>';
+                                
+                                echo '<div class = "rating">0</div>';
+
+
+                                //PHP for disliking a comment
+                                echo '<form method="post" action = "eventpage.php">';
+                                echo '<button name = "cdislike">';
+                                echo '<input type = "hidden" name = "comdate" value = "'.$comrating[1].'">';
+                                echo '<input type = "hidden" name = "comuser" value = "'.$comrating[2].'">';
+								echo '<img src = "dislike.png" style= "width:12px; height:12px;">';
+                                echo '<input type = "hidden" name = "eventName" value="'.$name.'">';
+                                    if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['cdislike'])){
+                                        if ($_POST['comdate'] == $comrating[1] and $_POST['comuser'] == $comrating[2]){
+                                            $stmt = $dbh->prepare("UPDATE Comments SET rating = '".$comrating[0]."' - 1 where eventName = '".$name."' AND datetime = '".$comrating[1]."' AND username = '".$comrating[2]."'");
+                                            $stmt->execute();
+                                        }
+                                    }
+								echo '</button>';
+                                echo '</form>';
+
+                                echo '</div>';
+                            }
+
+				        } catch (PDOException $e) {
+				        	print "Error!" . $e->getMessage()."<br/>";
+				        	die();
+				        }
+                    ?>
                 </ul>
                 <button class="seeMore">load more</button>
             </div>
         </div>
     </div>
-
-
-
-    <script>// Script for the eventRating
-        /*
-		var like = document.getElementsByClassName('ratingVote')[0];
-        var dislike = document.getElementsByClassName('ratingVote')[1];
-        var eventRating = document.getElementById('ratingNumber');
-        var eventName = "theRealEventName";
-
-        document.
-        if()
-
-        dislike.addEventListener("click", function(){
-            ratingNumber.innerHTML = parseInt(ratingNumber.innerHTML.trim()) - 1;
-            document.cookie = "event=" + eventName + "; type=eventRating; value=dislike; "; //+"expires = " + eventTime;
-            var cookies = document.
-        })
-		*/
-    </script>
 
     <script> //Script for the comments
         var template = document.getElementsByClassName('blankComment')[0]
@@ -609,7 +687,9 @@ if (!$_SESSION["loggedin"]) {
 		var commentRating = []
         var visibleComments = 0
         var totalComments = getNumOfComments()
-        var addUserComment = document.getElementById('addComment')
+        var addUserComment = document.getElementById('addComment');
+        var commentRatingButtons = document.getElementById('commentRatings');
+        commentRatingButtons = commentRatingButtons.getElementsByClassName('invisRatings');
 
         //The following functions are prototypes meant to deal with data calls. 
         //This was done to keep GUI functionality independent from data call implementation
@@ -631,7 +711,7 @@ if (!$_SESSION["loggedin"]) {
 				}	
 			
 			?>
-            var num = <?php echo $numComments[0] ?> //replace with datacall
+            var num = <?php echo $numComments[0] ?> 
             if (num == 0){
                 loadMore.style.display = "none"
             }
@@ -660,16 +740,6 @@ if (!$_SESSION["loggedin"]) {
 				echo ')';
 				echo ";";
 			}
-			/*
-			if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['clike'])) {
-					$stmt = $dbh->prepare("UPDATE Comments SET rating = '".$comments[3]."' + 1 where username = '".$comments[2]."' AND eventName = '".$name."' AND datetime = '".$comments[1]."'");
-					$stmt->execute();
-			}
-			if($_SERVER['REQUEST_METHOD'] == "POST" and isset($_POST['cdislike'])) {
-					$stmt = $dbh->prepare("UPDATE Comments SET rating = '".$comments[3]."' - 1 where username = '".$comments[2]."' AND eventName = '".$name."' AND datetime = '".$comments[1]."'");
-					$stmt->execute();
-			}
-			*/
 		?>
 		
 		
@@ -708,11 +778,25 @@ if (!$_SESSION["loggedin"]) {
 			}
 		}
 		
-		load3comments()
+        load3comments()
+        //Keeps the number of loaded comments consistent on page reload
+        if (typeof('storage') != "undefined"){
+            var numtoload = sessionStorage.getItem('numloaded');
+            if (numtoload != "undefined"){
+                numtoload = parseInt(numtoload);
+                while (visibleComments < numtoload && visibleComments < totalComments){
+                    load3comments();
+                }
+            }
+        }
 		
         //Loads three new comments every time "load more" is clicked
         loadMore.addEventListener("click", function(){
             load3comments()
+            //Keeps the loaded comments consistent on page reload
+            if (typeof('storage') != "undefined"){
+                sessionStorage.setItem('numloaded', visibleComments);
+            }
         })
 
         //Displays user input field when add comment is clicked
@@ -727,6 +811,7 @@ if (!$_SESSION["loggedin"]) {
             newComment.getElementsByClassName('username')[0].innerHTML = comment[0];
             newComment.getElementsByTagName('p')[0].innerHTML = comment[2];
 			newComment.getElementsByClassName('commentDT')[0].innerHTML = comment[1];
+            newComment.getElementsByClassName('ratingWrapper')[0].innerHTML = commentRatingButtons[visibleComments].innerHTML;
 			newComment.getElementsByClassName('rating')[0].innerHTML = comment[3];
             commentList.innerHTML = commentList.innerHTML + "<li>" + newComment.innerHTML + "</li>"; 
             
@@ -766,6 +851,15 @@ if (!$_SESSION["loggedin"]) {
             }   
             return num
         }
+    </script>
+    <script>// Script to keep the page scroll consistent after reloading
+        /*window.addEventListener("beforeunload", function(event) {
+            alert(window.scrollY);
+            if (typeof('storage') != "undefined"){
+                sessionStorage.setItem('scrollpos', window.scrollY);
+                alert(window.scrollY);
+            }
+        });*/
     </script>
 
 </body>
