@@ -2,6 +2,7 @@
 
 <head>
   <title>Amplify: Home</title>
+  <link rel="shortcut icon" type="image/jpg" href="favicon.ico"/>
   <style>
     body{
       color: white;
@@ -41,7 +42,7 @@
       top:0;
       background-image:url("studyofdista.jpg");
     }
-	
+
   	.infowrapper{
 			display: flex;
 			padding: 0 1% 0 0;
@@ -53,17 +54,18 @@
 	    text-align:right;
       border:0;
     }
-	
+
 	  .buttondiv button{
-      background-color: yellow;
-			display: block;
+      background-color: black;
+      color:white;
+      display: block;
       padding: 5%;
       font-weight: bold;
       border-radius: 3pt;
 			width: 125px;
 			height: 30px;
     }
-	
+
     #logo{
 	  	width: 100%;
     }
@@ -73,7 +75,7 @@
       top:115px;
     }
 
-    .thumbnail input{
+    .thumbnail .gotoEvent{
       background-color: yellow;
       border-radius: 5px;
       font-weight: bold;
@@ -121,9 +123,9 @@
     @media screen and (max-width: 450px){
       #eventpane{
         grid-template-columns: 1fr;
-      } 
+      }
      }
-    
+
   </style>
 
 </head>
@@ -149,7 +151,7 @@
         <div class = "align-right">
 		      <div class = "buttondiv">
 			      <button>
-				      <a href="eventpage.php">
+				      <a href="publishEvent.php">
 				        Create An Event
 				      </a>
 			      </button>
@@ -170,10 +172,10 @@
   <div id=events class=box>
     <h2>All Events</h2>
     <div id= "eventpane">
-	
+
 	<?php
 		session_start();
-	
+
 		try {
 			$config = parse_ini_file("amplifydb.ini");
 			$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
@@ -181,39 +183,47 @@
 			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 			foreach ( $dbh->query("SELECT eventName, image FROM Events ORDER BY rating DESC") as $row ) {
-				
-				
+
+
 				echo '<div class = "thumbnail">';
 				echo '<div class = "eventTitle">';
 				echo '<form method="post" action="eventpage.php">';
-				echo '<input type="submit" name="eventName" value="'.$row[0].'">';
-					echo '<input type = "hidden" name = "eventName" value="'.$row[0].'">'; 
-				echo '</form>';	
+        echo '<button class = "gotoEvent" name="eventName" value="'.$row[0].'">';
+          echo '<input type = "hidden" name = "eventName" value="'.$row[0].'"/>';
+        echo $row[0].'</button>';
+				echo '</form>';
 				echo '</div>';
 				if ($row[1] == NULL) {
 					echo '<img src = "empty_event.png">';
 				} else {
 					echo "<img src = $row[1]>";
 				}
-				echo '</div>'; 
+				echo '</div>';
 			}
 				// Catch statement that activates if connection to database fails
 			} catch (PDOException $e) {
 				print "Error!" . $e->getMessage()."<br/>";
 				die();
-			}	
-	
-	?>
-	
+			}
 
-		
+	?>
+
+
+
     </div>
     <h3 class = "hidden">No more events to display!</h3>
   </div>
   <a href="Account.html">Return to Account page.</a>
   <footer>
-    
+
   </footer>
+  <script>
+    //Clears the number of comments loaded (on any given event) on return to the homepage
+    document.addEventListener("DOMContentLoaded", function() {
+      sessionStorage.removeItem('numloaded');
+    });
+  </script>
+
 </body>
 
 </html>
