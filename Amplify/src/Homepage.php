@@ -1,3 +1,5 @@
+
+
 <html>
 
 <head>
@@ -112,7 +114,31 @@
     .hidden{
       display: none;
     }
+	
+	.searchbox {
+		float: center;
+	}
+	.searchbox button {
 
+		padding: 8px;
+		margin-top: 10px;
+		margin-left: 10px;
+		background: yellow;
+		font-size: 20px;
+		border: none;
+		cursor: pointer;
+	}
+	.searchbox button:hover {
+		background: purple;
+	}
+	
+	input[type=text] {
+		padding: 6px;
+		margin-top: 8px;
+		font-size: 17px;
+		border: none;
+	}
+	
     @media screen and (max-width: 700px){
       #eventpane{
         grid-template-columns: 1fr 1fr;
@@ -142,7 +168,7 @@
         <div class = "align-right">
 		      <div class = "buttondiv">
 			      <button>
-				      <a href="Account.html">
+				      <a href="Account.php">
 				        My Account
 				      </a>
 			      </button>
@@ -171,41 +197,83 @@
   </div>
   <div id=events class=box>
     <h2>All Events</h2>
+	<div class="searchbox">
+		<form method="post" action="Homepage.php">
+			<input type="text" placeholder = "Search events... " name = "search">
+			<button type = "submit">
+				Submit
+			</button>
+		</form>
+	</div>
     <div id= "eventpane">
 
 	<?php
 		session_start();
+		if(isset($_POST["search"])) {
+			
+			try {
+				$config = parse_ini_file("amplifydb.ini");
+				$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
 
-		try {
-			$config = parse_ini_file("amplifydb.ini");
-			$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
+				$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-			foreach ( $dbh->query("SELECT eventName, image FROM Events ORDER BY rating DESC") as $row ) {
+				foreach ( $dbh->query("SELECT eventName, image FROM Events WHERE eventName LIKE '".'%'.$_POST["search"].'%'."' ORDER BY rating DESC") as $row ) {
 
 
-				echo '<div class = "thumbnail">';
-				echo '<div class = "eventTitle">';
-				echo '<form method="post" action="eventpage.php">';
-        echo '<button class = "gotoEvent" name="eventName" value="'.$row[0].'">';
-          echo '<input type = "hidden" name = "eventName" value="'.$row[0].'"/>';
-        echo $row[0].'</button>';
-				echo '</form>';
-				echo '</div>';
-				if ($row[1] == NULL) {
-					echo '<img src = "empty_event.png">';
-				} else {
-					echo "<img src = $row[1]>";
+					echo '<div class = "thumbnail">';
+					echo '<div class = "eventTitle">';
+					echo '<form method="post" action="eventpage.php">';
+					echo '<button class = "gotoEvent" name="eventName" value="'.$row[0].'">';
+					echo '<input type = "hidden" name = "eventName" value="'.$row[0].'"/>';
+					echo $row[0].'</button>';
+					echo '</form>';
+					echo '</div>';
+					if ($row[1] == NULL) {
+						echo '<img src = "empty_event.png">';
+					} else {
+						echo "<img src = $row[1]>";
+					}
+					echo '</div>';
 				}
-				echo '</div>';
-			}
-				// Catch statement that activates if connection to database fails
-			} catch (PDOException $e) {
-				print "Error!" . $e->getMessage()."<br/>";
-				die();
-			}
+				
+					// Catch statement that activates if connection to database fails
+				} catch (PDOException $e) {
+					print "Error!" . $e->getMessage()."<br/>";
+					die();
+				}
+				
+		} else {
+			try {
+				$config = parse_ini_file("amplifydb.ini");
+				$dbh = new PDO($config['dsn'], $config['username'],$config['password']);
 
+				$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+				foreach ( $dbh->query("SELECT eventName, image FROM Events ORDER BY rating DESC") as $row ) {
+
+
+					echo '<div class = "thumbnail">';
+					echo '<div class = "eventTitle">';
+					echo '<form method="post" action="eventpage.php">';
+					echo '<button class = "gotoEvent" name="eventName" value="'.$row[0].'">';
+					echo '<input type = "hidden" name = "eventName" value="'.$row[0].'"/>';
+					echo $row[0].'</button>';
+					echo '</form>';
+					echo '</div>';
+					if ($row[1] == NULL) {
+						echo '<img src = "empty_event.png">';
+					} else {
+						echo "<img src = $row[1]>";
+					}
+					echo '</div>';
+				}
+					// Catch statement that activates if connection to database fails
+				} catch (PDOException $e) {
+					print "Error!" . $e->getMessage()."<br/>";
+					die();
+				}
+			
+		}
 	?>
 
 
